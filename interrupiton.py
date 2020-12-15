@@ -1,18 +1,39 @@
+#!/usr/bin/env python2.7  
+# script by Alex Eames https://raspi.tv  
+  
 import RPi.GPIO as GPIO  
 GPIO.setmode(GPIO.BCM)  
-
-
-# Setando GPIO 17 como input em borda de decida (apenas quando é pressionado)
-GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-# função de Callback
-def my_callback(channel):
-    print("falling edge detected on 17")
-
-GPIO.add_event_detect(17, GPIO.FALLING, callback=my_callback, boucetime=300)
-
-try:
-    print("Iniciou")
-except KeyboardInterrupt:
+  
+# GPIO 23 & 24 set up as inputs. One pulled up, the other down.  
+# 23 will go to GND when button pressed and 24 will go to 3V3 (3.3V)  
+# this enables us to demonstrate both rising and falling edge detection  
+GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)  
+GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  
+  
+# now we'll define the threaded callback function  
+# this will run in another thread when our event is detected  
+def my_callback(channel):  
+    print "Rising edge detected on port 24 - even though, in the main thread,"  
+    print "we are still waiting for a falling edge - how cool?\n"  
+  
+print "Make sure you have a button connected so that when pressed"  
+print "it will connect GPIO port 17 (pin 16) to GND (pin 6)\n"  
+print "You will also need a second button connected so that when pressed"  
+print "it will connect GPIO port 24 (pin 18) to 3V3 (pin 1)"  
+raw_input("Press Enter when ready\n>")  
+  
+# The GPIO.add_event_detect() line below set things up so that  
+# when a rising edge is detected on port 24, regardless of whatever   
+# else is happening in the program, the function "my_callback" will be run  
+# It will happen even while the program is waiting for  
+# a falling edge on the other button.  
+GPIO.add_event_detect(24, GPIO.RISING, callback=my_callback)  
+  
+try:  
+    print "Waiting for falling edge on port 17"  
+    GPIO.wait_for_edge(17, GPIO.FALLING)  
+    print "Falling edge detected. Here endeth the second lesson."  
+  
+except KeyboardInterrupt:  
     GPIO.cleanup()       # clean up GPIO on CTRL+C exit  
 GPIO.cleanup()           # clean up GPIO on normal exit  
