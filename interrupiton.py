@@ -1,5 +1,5 @@
-import RPI.GPIO as GPIO
-GPIO.setmode(GPIO.BCM)
+import RPi.GPIO as GPIO  
+GPIO.setmode(GPIO.BCM)  
 
 
 # Setando GPIO 17 como input em borda de decida (apenas quando é pressionado)
